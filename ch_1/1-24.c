@@ -1,5 +1,5 @@
 #include <stdio.h>
-#define MAXOPENCHAR 1000 //defines the maximum number of open chars on the stack
+#define MAXOPENCHAR 100 //defines the maximum number of open chars on the stack
 
 //Checks C programs for unbalanced paranthesis, brackets, braces, and quotes
 
@@ -9,8 +9,8 @@
 
 main()
 {
-	int stack[MAXOPENCHAR] = {0}, lineNum = 1, i = 1;
-	char c, b;
+	int stack[MAXOPENCHAR] = {0}, lineNum = 1, i = 1, inChar = 0;
+	char c;
 
 	while((c = getchar()) != EOF)
 	{
@@ -19,7 +19,7 @@ main()
 			case('('):  //with an open char, put it on the stack
 			case('{'):
 			case('['):
-				if(b != '\''){
+				if(inChar == 0){
 					stack[i] = c;
 					i++;
 					break;
@@ -27,12 +27,15 @@ main()
 			//have the possibility to be both open and close chars
 			//checks them and then decides
 			case('\''):
-				if(stack[i-1] != '\''){
+				if(stack[i-1] != '\'' && inChar == 0){
 					stack[i] = c;
 					i++;
+					inChar = 1;
 				}
-				else
+				else if (inChar ==0){
 					i--;
+					inChar = 0;
+				}
 				break;
 			case('"'):
 				if(stack[i-1] != '"'){
@@ -45,21 +48,21 @@ main()
 			//close chars only
 			//moves the index, effectivly removing the top
 			case(')'):
-				if(stack[i-1] != '(' && b != '\''){
+				if(stack[i-1] != '(' && inChar ==0){
 					printf("ERROR: found unmatched %c at line %d\n", c, lineNum);
 				}
 				else
 					i--;
 				break;
 			case('}'):
-				if(stack[i-1] != '{' && b != '\''){
+				if(stack[i-1] != '{' && inChar ==0){
                                         printf("ERROR: found unmatched %c at line %d\n", c, lineNum);
 				}
                                 else
                                         i--;
                                 break;
 			case(']'):
-				if(stack[i-1] != '[' && b != '\''){
+				if(stack[i-1] != '[' && inChar ==0){
                                         printf("ERROR: found unmatched %c at line %d\n",  c, lineNum);
                                 }
 				else
@@ -68,7 +71,6 @@ main()
 			case('\n'):
 				lineNum++;
 		}
-		b = c;
 	}
 	printf("All other chars balanced and accounted for\n");
 }
